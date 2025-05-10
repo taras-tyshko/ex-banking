@@ -3,9 +3,9 @@ name: Elixir CI
 # Define when to run the workflow
 on:
   push:
-    branches: [ master ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ master ]
+    branches: [ main, master ]
 
 # Set environment variables
 env:
@@ -64,6 +64,45 @@ jobs:
     - name: Run tests
       run: mix test
 
-    # Step: Check test coverage (optional)
+    # Step: Generate coverage report
     - name: Run tests with coverage
-      run: mix test --cover 
+      run: mix test --cover
+    
+    # Step: Parse coverage and generate badge
+    - name: Generate coverage badge
+      run: |
+        # Create directory for badges
+        mkdir -p coverage_badges
+        
+        # Parse the coverage percentage from the output
+        COVERAGE=$(grep -A 1 "All files" cover/modules.html | tail -n 1 | awk -F '</td><td>' '{print $NF}' | sed 's/<\/td><\/tr>//')
+        COVERAGE_NUM=$(echo $COVERAGE | sed 's/%//')
+        
+        # Determine badge color based on coverage percentage
+        if (( $(echo "$COVERAGE_NUM >= 90" | bc -l) )); then
+          COLOR="brightgreen"
+        elif (( $(echo "$COVERAGE_NUM >= 80" | bc -l) )); then
+          COLOR="green"
+        elif (( $(echo "$COVERAGE_NUM >= 70" | bc -l) )); then
+          COLOR="yellowgreen"
+        elif (( $(echo "$COVERAGE_NUM >= 60" | bc -l) )); then
+          COLOR="yellow"
+        elif (( $(echo "$COVERAGE_NUM >= 50" | bc -l) )); then
+          COLOR="orange"
+        else
+          COLOR="red"
+        fi
+        
+        # Generate badge using shields.io
+        curl -o coverage_badges/coverage.svg "https://img.shields.io/badge/coverage-$COVERAGE-$COLOR"
+        
+        echo "Coverage: $COVERAGE"
+    
+    # Step: Deploy coverage badge to GitHub Pages
+    - name: Deploy coverage badge to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+      with:
+        folder: coverage_badges
+        branch: gh-pages
+        target-folder: badges 

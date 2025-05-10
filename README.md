@@ -1,5 +1,8 @@
 # ExBanking
 
+[![Elixir CI](https://github.com/taras-tyshko/ex-banking/actions/workflows/elixir-ci.yml/badge.svg)](https://github.com/taras-tyshko/ex-banking/actions/workflows/elixir-ci.yml)
+[![Coverage](https://taras-tyshko.github.io/ex-banking/badges/coverage.svg)](https://github.com/taras-tyshko/ex-banking/actions/workflows/elixir-ci.yml)
+
 A simple banking OTP application in Elixir.
 
 ## API Reference
