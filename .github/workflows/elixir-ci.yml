@@ -7,6 +7,12 @@ on:
   pull_request:
     branches: [ main, master ]
 
+# Add permissions for GitHub Pages deployment
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 # Set environment variables
 env:
   MIX_ENV: test
